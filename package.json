@@ -1,6 +1,6 @@
 {
   "name": "@feihan-im/openclaw-plugin",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "飞函 IM OpenClaw 频道插件",
   "author": "上海飞函安全科技有限公司",
   "type": "module",
