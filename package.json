@@ -1,7 +1,7 @@
 {
   "name": "@feihan-im/openclaw-plugin",
   "version": "0.1.1",
-  "description": "飞函 IM OpenClaw 频道插件",
+  "description": "Feihan IM OpenClaw channel plugin",
   "author": "上海飞函安全科技有限公司",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -26,6 +26,7 @@
     "openclaw.plugin.json"
   ],
   "openclaw": {
+    "setup": "./dist/src/setup-entry.js",
     "extensions": [
       "./dist/index.js"
     ],
@@ -45,7 +46,7 @@
     "test:watch": "vitest",
     "clean": "rm -rf dist"
   },
-  "keywords": ["openclaw", "channel", "plugin", "feihan", "飞函", "im"],
+  "keywords": ["openclaw", "channel", "plugin", "feihan", "im"],
   "engines": {
     "node": ">=18.0.0"
   },
@@ -59,7 +60,12 @@
     "url": "https://github.com/feihan-im/openclaw-feihan/issues"
   },
   "peerDependencies": {
-    "openclaw": "*"
+    "openclaw": ">=2026.3.22"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@feihan-im/sdk": "0.28.108",

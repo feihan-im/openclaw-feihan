@@ -5,7 +5,7 @@ import { defineConfig } from 'tsup';
 import path from 'path';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: ['src/index.ts', 'src/setup-entry.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: true,

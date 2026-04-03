@@ -1,11 +1,20 @@
 {
   "id": "openclaw-feihan",
   "name": "Feihan Channel",
+  "description": "Connect OpenClaw with Feihan",
   "version": "0.1.0",
+  "kind": "channel",
   "channels": ["feihan"],
   "configSchema": {
     "type": "object",
+    "additionalProperties": false,
+    "required": ["appId", "appSecret", "backendUrl"],
     "properties": {
+      "enabled": {
+        "type": "boolean",
+        "description": "Enable this channel",
+        "default": true
+      },
       "appId": {
         "type": "string",
         "description": "Feihan application ID"
@@ -39,13 +48,13 @@
         "additionalProperties": {
           "type": "object",
           "properties": {
+            "enabled": { "type": "boolean", "default": true },
             "appId": { "type": "string" },
             "appSecret": { "type": "string" },
             "backendUrl": { "type": "string" },
             "enableEncryption": { "type": "boolean" },
             "requestTimeout": { "type": "number" },
-            "requireMention": { "type": "boolean" },
-            "enabled": { "type": "boolean", "default": true }
+            "requireMention": { "type": "boolean" }
           },
           "required": ["appId", "appSecret", "backendUrl"]
         }
