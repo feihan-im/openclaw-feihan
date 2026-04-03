@@ -1,0 +1,60 @@
+{
+  "id": "openclaw-feihan",
+  "name": "Feihan Channel",
+  "version": "0.1.0",
+  "channels": ["feihan"],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "appId": {
+        "type": "string",
+        "description": "Feihan application ID"
+      },
+      "appSecret": {
+        "type": "string",
+        "description": "Feihan application secret"
+      },
+      "backendUrl": {
+        "type": "string",
+        "description": "Feihan backend URL (e.g., https://api.feihan.im)"
+      },
+      "enableEncryption": {
+        "type": "boolean",
+        "description": "Enable message encryption",
+        "default": true
+      },
+      "requestTimeout": {
+        "type": "number",
+        "description": "Request timeout in milliseconds",
+        "default": 30000
+      },
+      "requireMention": {
+        "type": "boolean",
+        "description": "Require @mention in group chats before responding",
+        "default": true
+      },
+      "accounts": {
+        "type": "object",
+        "description": "Multi-account configuration",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "appId": { "type": "string" },
+            "appSecret": { "type": "string" },
+            "backendUrl": { "type": "string" },
+            "enableEncryption": { "type": "boolean" },
+            "requestTimeout": { "type": "number" },
+            "requireMention": { "type": "boolean" },
+            "enabled": { "type": "boolean", "default": true }
+          },
+          "required": ["appId", "appSecret", "backendUrl"]
+        }
+      }
+    }
+  },
+  "uiHints": {
+    "appId": { "label": "App ID" },
+    "appSecret": { "label": "App Secret", "sensitive": true },
+    "backendUrl": { "label": "Backend URL", "placeholder": "https://api.feihan.im" }
+  }
+}

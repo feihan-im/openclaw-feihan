@@ -1,0 +1,74 @@
+{
+  "name": "@feihan-im/openclaw-plugin",
+  "version": "0.1.0",
+  "description": "飞函 IM OpenClaw 频道插件",
+  "author": "上海飞函安全科技有限公司",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ],
+    "channel": {
+      "id": "feihan",
+      "label": "Feihan",
+      "selectionLabel": "Feihan (飞函)",
+      "docsPath": "/channels/feihan",
+      "blurb": "Feihan enterprise IM channel"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["openclaw", "channel", "plugin", "feihan", "飞函", "im"],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "Apache-2.0",
+  "homepage": "https://feihanim.cn",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feihan-im/openclaw-feihan.git"
+  },
+  "bugs": {
+    "url": "https://github.com/feihan-im/openclaw-feihan/issues"
+  },
+  "peerDependencies": {
+    "openclaw": "*"
+  },
+  "dependencies": {
+    "@feihan-im/sdk": "^0.28.108",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/ws": "^8.5.13",
+    "tsup": "^8.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
