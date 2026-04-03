@@ -2,8 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import register from "./index.js";
-import type { PluginApi } from "./types.js";
+
+// Mock the SDK module before any imports
+vi.mock("openclaw/plugin-sdk/core", () => ({
+  defineChannelPluginEntry: (config: unknown) => config,
+  createChatChannelPlugin: (config: unknown) => config,
+  createChannelPluginBase: (config: unknown) => config,
+}));
 
 vi.mock("./core/feihan-client.js", () => ({
   createClient: vi.fn(),
@@ -18,20 +23,29 @@ vi.mock("./messaging/outbound.js", () => ({
   readMessage: vi.fn().mockResolvedValue(undefined),
 }));
 
+// Import after mocks are set up
 import { createClient, clientCount } from "./core/feihan-client.js";
 
-function createMockApi(config: unknown = {}): PluginApi {
+// Import the entry module - need to use dynamic import for esm
+const entry = await import("./index.js");
+
+interface MockPluginApi {
+  registerChannel: ReturnType<typeof vi.fn>;
+  registerService: ReturnType<typeof vi.fn>;
+  config: { channels?: Record<string, unknown> };
+  logger?: {
+    info: ReturnType<typeof vi.fn>;
+    warn: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+    debug: ReturnType<typeof vi.fn>;
+  };
+}
+
+function createMockApi(config: unknown = {}): MockPluginApi {
   return {
     registerChannel: vi.fn(),
     registerService: vi.fn(),
-    config: config as PluginApi["config"],
-    runtime: {
-      channel: {
-        reply: { dispatchReplyWithBufferedBlockDispatcher: vi.fn() },
-        session: { recordInboundSession: vi.fn() },
-        routing: { resolveAgentRoute: vi.fn() },
-      },
-    },
+    config: config as MockPluginApi["config"],
     logger: {
       info: vi.fn(),
       warn: vi.fn(),
@@ -41,25 +55,37 @@ function createMockApi(config: unknown = {}): PluginApi {
   };
 }
 
-function extractStartFn(api: PluginApi): () => Promise<void> {
+function extractStartFn(api: MockPluginApi): () => Promise<void> {
   const call = (api.registerService as ReturnType<typeof vi.fn>).mock.calls[0];
   return call[0].start;
 }
 
-describe("register", () => {
+describe("entry module", () => {
   beforeEach(() => {
     vi.mocked(clientCount).mockReturnValue(0);
     vi.mocked(createClient).mockResolvedValue({ client: {}, config: {} } as any);
   });
 
-  it("registers channel and service", () => {
-    const api = createMockApi();
-    register(api);
+  it("exports entry with correct id", () => {
+    expect(entry.default.id).toBe("feihan");
+  });
 
-    expect(api.registerChannel).toHaveBeenCalledOnce();
-    expect(api.registerChannel).toHaveBeenCalledWith(
-      expect.objectContaining({ plugin: expect.objectContaining({ id: "feihan" }) }),
-    );
+  it("exports entry with correct name", () => {
+    expect(entry.default.name).toBe("Feihan");
+  });
+
+  it("exports entry with plugin", () => {
+    expect(entry.default.plugin).toBeDefined();
+    expect(entry.default.plugin.base.id).toBe("feihan");
+  });
+
+  it("exports registerFull function", () => {
+    expect(entry.default.registerFull).toBeInstanceOf(Function);
+  });
+
+  it("registerFull registers service", () => {
+    const api = createMockApi();
+    entry.default.registerFull(api);
 
     expect(api.registerService).toHaveBeenCalledOnce();
     expect(api.registerService).toHaveBeenCalledWith(
@@ -67,9 +93,9 @@ describe("register", () => {
     );
   });
 
-  it("logs plugin registration", () => {
+  it("registerFull logs plugin registration", () => {
     const api = createMockApi();
-    register(api);
+    entry.default.registerFull(api);
     expect(api.logger!.info).toHaveBeenCalledWith("[feihan] plugin registered");
   });
 });
@@ -91,7 +117,7 @@ describe("service start — config validation", () => {
         },
       },
     });
-    register(api);
+    entry.default.registerFull(api);
     await extractStartFn(api)();
 
     expect(api.logger!.warn).toHaveBeenCalledWith(
@@ -113,7 +139,7 @@ describe("service start — config validation", () => {
         },
       },
     });
-    register(api);
+    entry.default.registerFull(api);
     await extractStartFn(api)();
 
     expect(api.logger!.warn).toHaveBeenCalledWith(
@@ -128,7 +154,7 @@ describe("service start — config validation", () => {
         feihan: { appId: "a", appSecret: "s", backendUrl: "https://ok.io" },
       },
     });
-    register(api);
+    entry.default.registerFull(api);
     await extractStartFn(api)();
 
     expect(createClient).toHaveBeenCalledOnce();
@@ -148,7 +174,7 @@ describe("service start — config validation", () => {
         },
       },
     });
-    register(api);
+    entry.default.registerFull(api);
     await extractStartFn(api)();
 
     // bad account skipped with warning

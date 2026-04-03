@@ -26,16 +26,16 @@
     "openclaw.plugin.json"
   ],
   "openclaw": {
-    "setup": "./dist/setup-entry.js",
     "extensions": [
       "./dist/index.js"
     ],
+    "setupEntry": "./dist/setup-entry.js",
     "channel": {
       "id": "feihan",
       "label": "Feihan",
       "selectionLabel": "Feihan (飞函)",
       "docsPath": "/channels/feihan",
-      "blurb": "Feihan enterprise IM channel"
+      "blurb": "Connect OpenClaw to Feihan"
     }
   },
   "scripts": {

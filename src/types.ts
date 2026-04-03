@@ -79,37 +79,7 @@ export type ConnectionState =
   | "connected"
   | "disconnecting";
 
-// --- OpenClaw Plugin API (minimal type surface) ---
+// --- OpenClaw Plugin API (re-export from SDK) ---
 
-export interface PluginApi {
-  registerChannel(opts: { plugin: unknown }): void;
-  registerService(opts: {
-    id: string;
-    start: () => Promise<void>;
-    stop: () => Promise<void>;
-  }): void;
-  config: { channels?: { feihan?: FeihanChannelConfig } } & Record<
-    string,
-    unknown
-  >;
-  runtime: {
-    channel: {
-      reply: {
-        dispatchReplyWithBufferedBlockDispatcher: (opts: unknown) => Promise<void>;
-      };
-      session: {
-        recordInboundSession: (opts: unknown) => Promise<void>;
-        resolveStorePath?: (store: unknown, opts: unknown) => string;
-      };
-      routing: {
-        resolveAgentRoute: (opts: unknown) => unknown;
-      };
-    };
-  };
-  logger?: {
-    info: (msg: string) => void;
-    warn: (msg: string) => void;
-    error: (msg: string) => void;
-    debug: (msg: string) => void;
-  };
-}
+// Re-export PluginApi from SDK for convenience
+export type { PluginApi } from "openclaw/plugin-sdk/core";

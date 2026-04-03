@@ -1,10 +1,9 @@
 {
   "id": "feihan",
-  "name": "Feihan Channel",
-  "description": "Connect OpenClaw with Feihan",
-  "version": "0.1.0",
   "kind": "channel",
   "channels": ["feihan"],
+  "name": "Feihan Channel",
+  "description": "Connect OpenClaw with Feihan",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

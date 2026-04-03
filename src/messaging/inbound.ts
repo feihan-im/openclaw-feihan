@@ -17,6 +17,30 @@ import type {
   PluginApi,
 } from "../types.js";
 
+// Extended PluginApi with runtime surfaces used by this module
+export interface ExtendedPluginApi extends PluginApi {
+  runtime?: {
+    channel?: {
+      reply?: {
+        dispatchReplyWithBufferedBlockDispatcher?: (opts: unknown) => Promise<void>;
+      };
+      session?: {
+        recordInboundSession?: (opts: unknown) => Promise<void>;
+        resolveStorePath?: (store: unknown, opts: unknown) => string;
+      };
+      routing?: {
+        resolveAgentRoute?: (opts: unknown) => unknown;
+      };
+    };
+  };
+  logger?: {
+    debug?: (msg: string) => void;
+    info?: (msg: string) => void;
+    warn?: (msg: string) => void;
+    error?: (msg: string) => void;
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Parse — extract usable text body from incoming message
 // ---------------------------------------------------------------------------
@@ -290,17 +314,25 @@ export interface InboundDispatchOptions {
  * Returns `true` if the message was dispatched, `false` if filtered.
  */
 export async function processInboundMessage(
-  api: PluginApi,
+  api: ExtendedPluginApi,
   account: FeihanAccountConfig,
   event: FeihanMessageEvent,
   opts: InboundDispatchOptions,
 ): Promise<boolean> {
   const logger = api.logger;
 
+  // Helper for safe logging
+  const log = {
+    debug: (msg: string) => { logger?.debug?.(msg); },
+    info: (msg: string) => { logger?.info?.(msg); },
+    warn: (msg: string) => { logger?.warn?.(msg); },
+    error: (msg: string) => { logger?.error?.(msg); },
+  };
+
   // 1. Parse
   const parsed = parseMessageEvent(event);
   if (!parsed) {
-    logger?.debug(
+    log.debug(
       `[feihan] ignoring unparseable event (messageId=${event?.message?.messageId ?? "unknown"} messageType=${event?.message?.messageType ?? "undefined"})`,
     );
     return false;
@@ -309,7 +341,7 @@ export async function processInboundMessage(
   // 2. Gate
   const gate = checkMessageGate(parsed, account);
   if (!gate.pass) {
-    logger?.debug(
+    log.debug(
       `[feihan] gated message=${parsed.messageId} reason=${gate.reason} chat=${parsed.chatId}`,
     );
     return false;
@@ -317,7 +349,7 @@ export async function processInboundMessage(
 
   // 3. Dedup
   if (isDuplicate(parsed.messageId)) {
-    logger?.debug(
+    log.debug(
       `[feihan] duplicate message=${parsed.messageId} chat=${parsed.chatId}`,
     );
     return false;
@@ -326,14 +358,14 @@ export async function processInboundMessage(
   // 4. Build context
   const ctx = buildContext(parsed, account);
 
-  logger?.info(
+  log.info(
     `[feihan] dispatching message=${parsed.messageId} chat=${parsed.chatId} sender=${parsed.senderId} type=${parsed.chatType}`,
   );
 
   // 5. Dispatch
   const runtime = api.runtime;
   if (!runtime?.channel?.reply?.dispatchReplyWithBufferedBlockDispatcher) {
-    logger?.warn("[feihan] runtime.channel.reply not available — cannot dispatch");
+    log.warn("[feihan] runtime.channel.reply not available — cannot dispatch");
     return false;
   }
 
@@ -361,7 +393,7 @@ export async function processInboundMessage(
   });
 
   // Dispatch reply with buffered block dispatcher
-  logger?.debug(
+  log.debug(
     `[feihan] dispatch starting for message=${parsed.messageId} session=${ctx.SessionKey}`,
   );
 
@@ -370,25 +402,25 @@ export async function processInboundMessage(
     cfg: api.config,
     dispatcherOptions: {
       deliver: async (payload: { text?: string }) => {
-        logger?.info(
+        log.info(
           `[feihan] deliver callback called for message=${parsed.messageId} hasText=${!!payload.text} textLen=${payload.text?.length ?? 0}`,
         );
         if (payload.text) {
           await opts.deliver(parsed.chatId, payload.text);
-          logger?.info(
+          log.info(
             `[feihan] deliver completed for message=${parsed.messageId} chat=${parsed.chatId}`,
           );
         }
       },
       onError: (err: unknown, info?: { kind?: string }) => {
-        logger?.error(
+        log.error(
           `[feihan] ${info?.kind ?? "reply"} error for message=${parsed.messageId}: ${err}`,
         );
       },
     },
   });
 
-  logger?.info(
+  log.info(
     `[feihan] dispatch finished for message=${parsed.messageId}`,
   );
 
