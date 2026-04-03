@@ -26,7 +26,7 @@
     "openclaw.plugin.json"
   ],
   "openclaw": {
-    "setup": "./dist/src/setup-entry.js",
+    "setup": "./dist/setup-entry.js",
     "extensions": [
       "./dist/index.js"
     ],
