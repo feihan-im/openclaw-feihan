@@ -29,7 +29,7 @@ function makeAccount(
     enabled: true,
     appId: "app_test",
     appSecret: "secret",
-    backendUrl: "https://api.feihan.test",
+    backendUrl: "https://your-backend-url.com",
     enableEncryption: true,
     requestTimeout: 30_000,
     requireMention: true,

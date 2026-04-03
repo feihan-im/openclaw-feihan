@@ -54,7 +54,7 @@ describe("resolveAccountConfig", () => {
         feihan: {
           appId: "app_1",
           appSecret: "secret_1",
-          backendUrl: "https://api.feihan.im",
+          backendUrl: "https://your-backend-url.com",
         },
       },
     };
@@ -102,13 +102,13 @@ describe("resolveAccountConfig", () => {
 
     process.env.FEIHAN_APP_ID = "env_app";
     process.env.FEIHAN_APP_SECRET = "env_secret";
-    process.env.FEIHAN_BACKEND_URL = "http://env.feihan.im";
+    process.env.FEIHAN_BACKEND_URL = "https://your-backend-url.com";
 
     try {
       const account = resolveAccountConfig({});
       expect(account.appId).toBe("env_app");
       expect(account.appSecret).toBe("env_secret");
-      expect(account.backendUrl).toBe("http://env.feihan.im");
+      expect(account.backendUrl).toBe("https://your-backend-url.com");
     } finally {
       if (origId === undefined) delete process.env.FEIHAN_APP_ID;
       else process.env.FEIHAN_APP_ID = origId;
@@ -213,7 +213,7 @@ describe("resolveAndValidateAccountConfig", () => {
         feihan: {
           appId: "app_1",
           appSecret: "secret_1",
-          backendUrl: "https://api.feihan.im",
+          backendUrl: "https://your-backend-url.com",
         },
       },
     };

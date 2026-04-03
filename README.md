@@ -8,7 +8,9 @@
 
 中文 | [English](./README.en.md)
 
-飞函 IM 频道插件，用于 OpenClaw。将飞函机器人接入 OpenClaw 的 AI Agent 管线，通过飞函与 Agent 对话。
+飞函，是安全稳定的私有化一站式办公平台，功能包括即时通讯、组织架构、音视频会议、网盘等。
+
+飞函 IM 频道插件，用于 OpenClaw。将飞函机器人接入 OpenClaw 的 AI Agent 管线，通过飞函与 Agent 对话。使用本插件前，需要先部署飞函服务端，请参阅[快速部署指南](https://feihanim.cn/docs/admin/install/quick-install)。
 
 ## 功能
 
@@ -50,7 +52,7 @@ openclaw channels add --channel feihan
     "feihan": {
       "appId": "your_app_id",
       "appSecret": "your_app_secret",
-      "backendUrl": "http://your-feihan-backend:21000"
+      "backendUrl": "https://your-backend-url.com"
     }
   }
 }
@@ -70,13 +72,13 @@ openclaw gateway restart
     "feihan": {
       "appId": "111111",
       "appSecret": "secret-1",
-      "backendUrl": "http://backend-1:21000",
+      "backendUrl": "https://your-backend-url.com",
       "accounts": {
         "bot2": {
           "enabled": true,
           "appId": "222222",
           "appSecret": "secret-2",
-          "backendUrl": "http://backend-2:21000"
+          "backendUrl": "https://your-backend-url.com"
         }
       }
     }
