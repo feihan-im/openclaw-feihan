@@ -10,7 +10,7 @@
 
 飞函，是安全稳定的私有化一站式办公平台，功能包括即时通讯、组织架构、音视频会议、网盘等。
 
-飞函 IM 频道插件，用于 OpenClaw。将飞函机器人接入 OpenClaw 的 AI Agent 管线，通过飞函与 Agent 对话。使用本插件前，需要先部署飞函服务端，请参阅[快速部署指南](https://feihanim.cn/docs/admin/install/quick-install)。
+飞函 IM 频道插件，用于 OpenClaw。将飞函机器人接入 OpenClaw 的 AI Agent 管线，通过飞函与 Agent 对话。请参阅[配置教程](https://feihanim.cn/docs/admin/bots/openclaw)了解如何将飞函连接到 OpenClaw。
 
 ## 功能
 

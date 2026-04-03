@@ -10,7 +10,7 @@
 
 Feihan is a secure, self-hosted productivity platform for teams, integrating instant messaging, organizational structures, video conferencing, and file storage.
 
-Feihan IM channel plugin for OpenClaw. Connects a Feihan bot to OpenClaw's AI agent pipeline so you can chat with your agent through Feihan. You need to deploy the Feihan server before using this plugin. See the [Quick Deploy Guide](https://feihanim.cn/docs/admin/install/quick-install) for setup instructions.
+Feihan IM channel plugin for OpenClaw. Connects a Feihan bot to OpenClaw's AI agent pipeline so you can chat with your agent through Feihan. See the [Setup Tutorial](https://feihanim.cn/docs/admin/bots/openclaw) for how to connect Feihan to OpenClaw.
 
 ## Features
 
