@@ -61,7 +61,7 @@
     "openclaw": "*"
   },
   "dependencies": {
-    "@feihan-im/sdk": "^0.28.108",
+    "@feihan-im/sdk": "0.28.108",
     "ws": "^8.18.0"
   },
   "devDependencies": {
