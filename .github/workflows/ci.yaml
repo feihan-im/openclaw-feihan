@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install openclaw to cache
+      - name: Install openclaw
         run: |
           mkdir -p ~/.openclaw-cache
           cd ~/.openclaw-cache
