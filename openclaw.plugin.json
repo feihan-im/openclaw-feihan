@@ -7,7 +7,36 @@
   "setupEntry": "./dist/setup-entry.js",
   "configSchema": {
     "type": "object",
-    "properties": {}
+    "properties": {
+      "appId": {
+        "type": "string",
+        "description": "App ID"
+      },
+      "appSecret": {
+        "type": "string",
+        "description": "App Secret"
+      },
+      "backendUrl": {
+        "type": "string",
+        "description": "Backend URL"
+      },
+      "enabled": {
+        "type": "boolean",
+        "description": "Enable this channel",
+        "default": true
+      },
+      "enableEncryption": {
+        "type": "boolean",
+        "description": "Enable encryption",
+        "default": false
+      },
+      "requestTimeout": {
+        "type": "number",
+        "description": "Request timeout in milliseconds",
+        "default": 30000
+      }
+    },
+    "required": ["appId", "appSecret", "backendUrl"]
   },
   "uiHints": {
     "appId": { "label": "App ID" },
