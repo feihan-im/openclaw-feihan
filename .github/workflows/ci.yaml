@@ -28,8 +28,17 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install openclaw peer dependency
-        run: npm install openclaw --no-save --ignore-scripts
+      - name: Install openclaw to cache
+        run: |
+          mkdir -p ~/.openclaw-cache
+          cd ~/.openclaw-cache
+          npm init -y
+          npm install openclaw --ignore-scripts
+
+      - name: Link openclaw
+        run: |
+          mkdir -p node_modules
+          ln -s ~/.openclaw-cache/node_modules/openclaw node_modules/openclaw
 
       - name: Type check
         run: npm run typecheck
