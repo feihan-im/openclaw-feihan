@@ -45,7 +45,6 @@ export function listAccountIds(cfg: unknown): string[] {
     return [];
   }
   if (ch.accounts) return Object.keys(ch.accounts);
-  if (ch.appId) return ["default"];
   // env var fallback
   if (process.env[`${ENV_PREFIX}APP_ID`]) return ["default"];
   return [];
@@ -59,7 +58,7 @@ export function resolveAccountConfig(
   const id = accountId ?? "default";
   const envConfig = readEnvConfig();
 
-  const raw = ch?.accounts?.[id] ?? ch;
+  const raw = ch?.accounts?.[id];
 
   return {
     accountId: id,

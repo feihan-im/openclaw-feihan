@@ -23,12 +23,6 @@ export interface FeihanRawAccountConfig {
 }
 
 export interface FeihanChannelConfig {
-  appId?: string;
-  appSecret?: string;
-  backendUrl?: string;
-  enabled?: boolean;
-  enableEncryption?: boolean;
-  requestTimeout?: number;
   accounts?: Record<string, FeihanRawAccountConfig>;
 }
 

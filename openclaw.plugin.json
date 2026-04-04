@@ -28,7 +28,7 @@
       "enableEncryption": {
         "type": "boolean",
         "description": "Use encrypted communication between OpenClaw and Feihan server",
-        "default": false
+        "default": true
       },
       "requestTimeout": {
         "type": "number",

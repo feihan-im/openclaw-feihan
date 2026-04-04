@@ -151,7 +151,7 @@ describe("service start — config validation", () => {
   it("connects valid accounts normally", async () => {
     const api = createMockApi({
       channels: {
-        feihan: { appId: "a", appSecret: "s", backendUrl: "https://ok.io" },
+        feihan: { accounts: { default: { appId: "a", appSecret: "s", backendUrl: "https://ok.io" } } },
       },
     });
     entry.default.registerFull(api);

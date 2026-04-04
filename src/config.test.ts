@@ -16,8 +16,8 @@ describe("listAccountIds", () => {
     expect(listAccountIds(undefined)).toEqual([]);
   });
 
-  it("returns ['default'] for flat single-account config", () => {
-    const cfg = { channels: { feihan: { appId: "app_1" } } };
+  it("returns ['default'] for single-account config", () => {
+    const cfg = { channels: { feihan: { accounts: { default: { appId: "app_1" } } } } };
     expect(listAccountIds(cfg)).toEqual(["default"]);
   });
 
@@ -48,13 +48,17 @@ describe("listAccountIds", () => {
 });
 
 describe("resolveAccountConfig", () => {
-  it("resolves flat config with defaults applied", () => {
+  it("resolves default account with defaults applied", () => {
     const cfg = {
       channels: {
         feihan: {
-          appId: "app_1",
-          appSecret: "secret_1",
-          backendUrl: "https://your-backend-url.com",
+          accounts: {
+            default: {
+              appId: "app_1",
+              appSecret: "secret_1",
+              backendUrl: "https://your-backend-url.com",
+            },
+          },
         },
       },
     };
@@ -118,7 +122,7 @@ describe("resolveAccountConfig", () => {
   it("config values take precedence over env vars", () => {
     process.env.FEIHAN_APP_ID = "env_app";
     const cfg = {
-      channels: { feihan: { appId: "config_app", appSecret: "s", backendUrl: "http://x" } },
+      channels: { feihan: { accounts: { default: { appId: "config_app", appSecret: "s", backendUrl: "http://x" } } } },
     };
     try {
       const account = resolveAccountConfig(cfg);
@@ -205,9 +209,13 @@ describe("resolveAndValidateAccountConfig", () => {
     const cfg = {
       channels: {
         feihan: {
-          appId: "app_1",
-          appSecret: "secret_1",
-          backendUrl: "https://your-backend-url.com",
+          accounts: {
+            default: {
+              appId: "app_1",
+              appSecret: "secret_1",
+              backendUrl: "https://your-backend-url.com",
+            },
+          },
         },
       },
     };

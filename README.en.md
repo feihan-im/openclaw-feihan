@@ -50,9 +50,13 @@ Or manually edit `~/.openclaw/openclaw.json`:
 {
   "channels": {
     "feihan": {
-      "appId": "your_app_id",
-      "appSecret": "your_app_secret",
-      "backendUrl": "https://your-backend-url.com"
+      "accounts": {
+        "default": {
+          "appId": "your_app_id",
+          "appSecret": "your_app_secret",
+          "backendUrl": "https://your-backend-url.com"
+        }
+      }
     }
   }
 }
@@ -70,12 +74,13 @@ openclaw gateway restart
 {
   "channels": {
     "feihan": {
-      "appId": "111111",
-      "appSecret": "secret-1",
-      "backendUrl": "https://your-backend-url.com",
       "accounts": {
+        "default": {
+          "appId": "111111",
+          "appSecret": "secret-1",
+          "backendUrl": "https://your-backend-url.com"
+        },
         "bot2": {
-          "enabled": true,
           "appId": "222222",
           "appSecret": "secret-2",
           "backendUrl": "https://your-backend-url.com"

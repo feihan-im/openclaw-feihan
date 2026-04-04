@@ -84,21 +84,15 @@ export const base = createChannelPluginBase<FeihanAccountConfig>({
       const appSecret = input.token;
       const backendUrl = input.url;
 
-      if (accountId && accountId !== "default") {
-        // Multi-account: write under accounts.<accountId>
-        if (!section.accounts) section.accounts = {};
-        const accounts = section.accounts as Record<string, Record<string, unknown>>;
-        if (!accounts[accountId]) accounts[accountId] = {};
-        const account = accounts[accountId];
-        if (appId) account.appId = appId;
-        if (appSecret) account.appSecret = appSecret;
-        if (backendUrl) account.backendUrl = backendUrl;
-      } else {
-        // Single-account: write at top level
-        if (appId) section.appId = appId;
-        if (appSecret) section.appSecret = appSecret;
-        if (backendUrl) section.backendUrl = backendUrl;
-      }
+      const id = accountId || "default";
+
+      if (!section.accounts) section.accounts = {};
+      const accounts = section.accounts as Record<string, Record<string, unknown>>;
+      if (!accounts[id]) accounts[id] = {};
+      const account = accounts[id];
+      if (appId) account.appId = appId;
+      if (appSecret) account.appSecret = appSecret;
+      if (backendUrl) account.backendUrl = backendUrl;
 
       return updated as OpenClawConfig;
     },
