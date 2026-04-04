@@ -32,8 +32,8 @@ jobs:
         run: |
           mkdir -p ~/.openclaw-cache
           cd ~/.openclaw-cache
-          npm init -y
-          npm install openclaw --ignore-scripts
+          echo '{"name":"openclaw-cache","private":true,"dependencies":{"openclaw":">=2026.3.22"}}' > package.json
+          npm install --ignore-scripts
 
       - name: Link openclaw
         run: |
