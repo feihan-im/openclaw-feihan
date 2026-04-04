@@ -1,6 +1,6 @@
 {
   "name": "@feihan-im/openclaw-plugin",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Feihan IM OpenClaw channel plugin",
   "author": "上海飞函安全科技有限公司",
   "type": "module",
