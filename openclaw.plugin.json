@@ -4,6 +4,7 @@
   "channels": ["feihan"],
   "name": "Feihan Channel",
   "description": "Connect OpenClaw with Feihan",
+  "setupEntry": "./dist/setup-entry.js",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,
