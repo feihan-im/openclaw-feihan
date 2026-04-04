@@ -35,8 +35,7 @@
         "description": "Request timeout in milliseconds",
         "default": 30000
       }
-    },
-    "required": ["appId", "appSecret", "backendUrl"]
+    }
   },
   "uiHints": {
     "appId": { "label": "App ID" },
