@@ -1,7 +1,7 @@
 // Copyright (c) 2026 上海飞函安全科技有限公司 (Shanghai Feihan Security Technology Co., Ltd.)
 // SPDX-License-Identifier: Apache-2.0
 
-import { defineChannelPluginEntry, type PluginApi } from "openclaw/plugin-sdk/core";
+import { defineChannelPluginEntry } from "openclaw/plugin-sdk/core";
 import { feihanPlugin } from "./channel.js";
 import { listEnabledAccountConfigs, validateAccountConfig } from "./config.js";
 import {
@@ -9,14 +9,10 @@ import {
   destroyAllClients,
   clientCount,
 } from "./core/feihan-client.js";
-import { processInboundMessage, type ExtendedPluginApi } from "./messaging/inbound.js";
+import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
+import { processInboundMessage } from "./messaging/inbound.js";
 import { makeDeliver, setTyping, clearTyping, readMessage } from "./messaging/outbound.js";
 import type { FeihanAccountConfig, FeihanMessageEvent } from "./types.js";
-
-// Extended PluginApi with config type for service registration
-interface ServicePluginApi extends ExtendedPluginApi {
-  config: { channels?: Record<string, unknown> };
-}
 
 export default defineChannelPluginEntry({
   id: "feihan",
@@ -24,49 +20,47 @@ export default defineChannelPluginEntry({
   description: "Connect OpenClaw with Feihan",
   plugin: feihanPlugin,
   registerFull(api) {
-    const typedApi = api as ServicePluginApi;
-
-    typedApi.registerService({
+    api.registerService({
       id: "feihan-sdk",
       start: async () => {
         if (clientCount() > 0) return;
 
-        const accounts = listEnabledAccountConfigs(typedApi.config);
+        const accounts = listEnabledAccountConfigs(api.config);
         if (accounts.length === 0) {
-          typedApi.logger?.warn?.("[feihan] no enabled account config found — service idle");
+          api.logger?.warn?.("[feihan] no enabled account config found — service idle");
           return;
         }
 
         for (const account of accounts) {
           const errors = validateAccountConfig(account);
           if (errors.length > 0) {
-            typedApi.logger?.warn?.(
+            api.logger?.warn?.(
               `[feihan] skipping account=${account.accountId}: ${errors.map((e) => e.message).join("; ")}`,
             );
             continue;
           }
 
           try {
-            await startAccount(typedApi, account);
-            typedApi.logger?.info?.(
+            await startAccount(api, account);
+            api.logger?.info?.(
               `[feihan] account=${account.accountId} connected (appId=${account.appId})`,
             );
           } catch (err) {
-            typedApi.logger?.error?.(
+            api.logger?.error?.(
               `[feihan] account=${account.accountId} failed to start: ${err instanceof Error ? err.message : String(err)}`,
             );
           }
         }
 
-        typedApi.logger?.info?.(`[feihan] service started with ${clientCount()} account(s)`);
+        api.logger?.info?.(`[feihan] service started with ${clientCount()} account(s)`);
       },
       stop: async () => {
         await destroyAllClients();
-        typedApi.logger?.info?.("[feihan] service stopped — all clients disconnected");
+        api.logger?.info?.("[feihan] service stopped — all clients disconnected");
       },
     });
 
-    typedApi.logger?.info?.("[feihan] plugin registered");
+    api.logger?.info?.("[feihan] plugin registered");
   },
 });
 
@@ -74,7 +68,7 @@ export default defineChannelPluginEntry({
  * Start a single account — create client, subscribe to inbound events.
  */
 async function startAccount(
-  api: ServicePluginApi,
+  api: OpenClawPluginApi,
   account: FeihanAccountConfig,
 ): Promise<void> {
   const deliver = makeDeliver(account.accountId, (msg) => api.logger?.warn?.(msg));
@@ -97,7 +91,7 @@ async function startAccount(
  * Handle a single inbound message with typing indicator lifecycle.
  */
 async function handleInbound(
-  api: ServicePluginApi,
+  api: OpenClawPluginApi,
   account: FeihanAccountConfig,
   event: FeihanMessageEvent,
   deliver: (chatId: string, text: string) => Promise<void>,

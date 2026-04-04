@@ -12,6 +12,7 @@ export default defineConfig({
   clean: true,
   target: 'es2022',
   splitting: false,
+  external: ['openclaw', /^openclaw\//],
   esbuildOptions(options) {
     options.alias = {
       '@': path.resolve(__dirname, 'src'),

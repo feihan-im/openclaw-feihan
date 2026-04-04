@@ -14,8 +14,8 @@ import {
 import type {
   FeihanAccountConfig,
   FeihanMessageEvent,
-  PluginApi,
 } from "../types.js";
+import type { InboundPluginApi } from "./inbound.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -56,7 +56,7 @@ function makeEvent(
   };
 }
 
-function makeMockApi(): PluginApi {
+function makeMockApi(): InboundPluginApi {
   return {
     registerChannel: vi.fn(),
     registerService: vi.fn(),

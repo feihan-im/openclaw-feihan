@@ -79,7 +79,3 @@ export type ConnectionState =
   | "connected"
   | "disconnecting";
 
-// --- OpenClaw Plugin API (re-export from SDK) ---
-
-// Re-export PluginApi from SDK for convenience
-export type { PluginApi } from "openclaw/plugin-sdk/core";

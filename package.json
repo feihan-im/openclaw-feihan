@@ -35,7 +35,8 @@
       "label": "Feihan",
       "selectionLabel": "Feihan (飞函)",
       "docsPath": "/channels/feihan",
-      "blurb": "Connect OpenClaw to Feihan"
+      "blurb": "Connect OpenClaw to Feihan",
+      "aliases": ["fh"]
     }
   },
   "scripts": {

@@ -14,22 +14,25 @@ import type {
   FeihanAccountConfig,
   FeihanMessage,
   FeihanMessageEvent,
-  PluginApi,
 } from "../types.js";
 
-// Extended PluginApi with runtime surfaces used by this module
-export interface ExtendedPluginApi extends PluginApi {
+// Plugin API surface used by this module.
+// At runtime the full OpenClawPluginApi is provided by the gateway;
+// we only declare the subset we access so the module stays decoupled
+// and testable without importing the full SDK.
+export interface InboundPluginApi {
+  config: Record<string, unknown>;
   runtime?: {
     channel?: {
       reply?: {
-        dispatchReplyWithBufferedBlockDispatcher?: (opts: unknown) => Promise<void>;
+        dispatchReplyWithBufferedBlockDispatcher?: (...args: any[]) => any;
       };
       session?: {
-        recordInboundSession?: (opts: unknown) => Promise<void>;
-        resolveStorePath?: (store: unknown, opts: unknown) => string;
+        recordInboundSession?: (...args: any[]) => any;
+        resolveStorePath?: (...args: any[]) => string;
       };
       routing?: {
-        resolveAgentRoute?: (opts: unknown) => unknown;
+        resolveAgentRoute?: (...args: any[]) => unknown;
       };
     };
   };
@@ -314,7 +317,7 @@ export interface InboundDispatchOptions {
  * Returns `true` if the message was dispatched, `false` if filtered.
  */
 export async function processInboundMessage(
-  api: ExtendedPluginApi,
+  api: InboundPluginApi,
   account: FeihanAccountConfig,
   event: FeihanMessageEvent,
   opts: InboundDispatchOptions,
