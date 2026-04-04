@@ -45,6 +45,24 @@ export const base = createChannelPluginBase<FeihanAccountConfig>({
   },
 
   setup: {
+    validateInput: ({ input }) => {
+      const missing: string[] = [];
+      if (!input.appToken) missing.push("--appToken (App ID)");
+      if (!input.token) missing.push("--token (App Secret)");
+      if (!input.url) missing.push("--url (Backend URL)");
+      if (missing.length > 0) {
+        return [
+          `Missing required flags: ${missing.join(", ")}`,
+          "",
+          "Either provide all flags:",
+          `  openclaw channels add --channel feihan --appToken <APP_ID> --token <APP_SECRET> --url <BACKEND_URL>`,
+          "",
+          "Or use the interactive wizard:",
+          "  openclaw channels add",
+        ].join("\n");
+      }
+      return null;
+    },
     applyAccountConfig: ({ cfg, accountId, input }) => {
       const updated = structuredClone(cfg) as Record<string, unknown>;
       if (!updated.channels) updated.channels = {};
