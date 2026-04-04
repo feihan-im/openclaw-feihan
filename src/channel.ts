@@ -5,11 +5,14 @@ import {
   createChatChannelPlugin,
   createChannelPluginBase,
 } from "openclaw/plugin-sdk/core";
+import { createHybridChannelConfigBase } from "openclaw/plugin-sdk/channel-config-helpers";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/core";
 import { listAccountIds, resolveAccountConfig } from "./config.js";
 import { sendText } from "./messaging/outbound.js";
 import { parseTarget } from "./targets.js";
 import type { FeihanAccountConfig } from "./types.js";
+
+const BASE_FIELDS = ["appId", "appSecret", "backendUrl", "enabled", "enableEncryption", "requestTimeout"];
 
 export const base = createChannelPluginBase<FeihanAccountConfig>({
   id: "feihan",
@@ -28,37 +31,42 @@ export const base = createChannelPluginBase<FeihanAccountConfig>({
   },
 
   config: {
-    listAccountIds: (cfg: OpenClawConfig) => listAccountIds(cfg),
-    resolveAccount: (cfg: OpenClawConfig, accountId?: string | null) =>
-      resolveAccountConfig(cfg, accountId ?? undefined),
-    inspectAccount(cfg: OpenClawConfig, accountId?: string | null) {
-      const resolved = resolveAccountConfig(cfg, accountId ?? undefined);
-      const hasConfig = Boolean(
-        resolved.appId && resolved.appSecret && resolved.backendUrl,
-      );
-      return {
-        enabled: resolved.enabled,
-        configured: hasConfig,
-        tokenStatus: hasConfig ? "available" : "missing",
-      };
-    },
+    ...createHybridChannelConfigBase<FeihanAccountConfig>({
+      sectionKey: "feihan",
+      listAccountIds: (cfg) => listAccountIds(cfg),
+      resolveAccount: (cfg, accountId) =>
+        resolveAccountConfig(cfg, accountId ?? undefined),
+      defaultAccountId: () => "default",
+      inspectAccount(cfg, accountId) {
+        const resolved = resolveAccountConfig(cfg, accountId ?? undefined);
+        const hasConfig = Boolean(
+          resolved.appId && resolved.appSecret && resolved.backendUrl,
+        );
+        return {
+          enabled: resolved.enabled,
+          configured: hasConfig,
+          tokenStatus: hasConfig ? "available" : "missing",
+        };
+      },
+      clearBaseFields: BASE_FIELDS,
+    }),
   },
 
   setup: {
     validateInput: ({ input }) => {
       const missing: string[] = [];
-      if (!input.appToken) missing.push("--app-token (App ID)");
-      if (!input.token) missing.push("--token (App Secret)");
-      if (!input.url) missing.push("--url (Backend URL)");
+      if (!input.appToken) missing.push("--app-token (App ID from Admin Console)");
+      if (!input.token) missing.push("--token (App Secret from Admin Console)");
+      if (!input.url) missing.push("--url (your Feihan server address)");
       if (missing.length > 0) {
         return [
           `Missing required flags: ${missing.join(", ")}`,
           "",
-          "Either provide all flags:",
+          "Usage:",
           `  openclaw channels add --channel feihan --app-token <APP_ID> --token <APP_SECRET> --url <BACKEND_URL>`,
           "",
-          "Or use the interactive wizard:",
-          "  openclaw channels add",
+          "You can find App ID and App Secret in:",
+          "  Feihan Admin Console → Workplace → App Management → App Details",
         ].join("\n");
       }
       return null;
@@ -117,7 +125,8 @@ export const base = createChannelPluginBase<FeihanAccountConfig>({
         preferredEnvVar: "FEIHAN_APP_ID",
         envPrompt: "Use FEIHAN_APP_ID from environment?",
         keepPrompt: "Keep current App ID?",
-        inputPrompt: "Enter your Feihan App ID:",
+        inputPrompt:
+          "Enter App ID (from Feihan Admin Console → Workplace → App Management → App Details):",
         inspect: ({ cfg, accountId }) => {
           const resolved = resolveAccountConfig(cfg, accountId ?? undefined);
           return {
@@ -133,7 +142,8 @@ export const base = createChannelPluginBase<FeihanAccountConfig>({
         preferredEnvVar: "FEIHAN_APP_SECRET",
         envPrompt: "Use FEIHAN_APP_SECRET from environment?",
         keepPrompt: "Keep current App Secret?",
-        inputPrompt: "Enter your Feihan App Secret:",
+        inputPrompt:
+          "Enter App Secret (from the same App Details page, keep this value confidential):",
         inspect: ({ cfg, accountId }) => {
           const resolved = resolveAccountConfig(cfg, accountId ?? undefined);
           return {
@@ -145,11 +155,12 @@ export const base = createChannelPluginBase<FeihanAccountConfig>({
       {
         inputKey: "url",
         providerHint: "feihan",
-        credentialLabel: "Backend URL",
+        credentialLabel: "Feihan Server URL",
         preferredEnvVar: "FEIHAN_BACKEND_URL",
         envPrompt: "Use FEIHAN_BACKEND_URL from environment?",
-        keepPrompt: "Keep current Backend URL?",
-        inputPrompt: "Enter your Feihan backend server URL:",
+        keepPrompt: "Keep current Feihan Server URL?",
+        inputPrompt:
+          "Enter your Feihan server address (e.g. http://192.168.10.10:21000):",
         inspect: ({ cfg, accountId }) => {
           const resolved = resolveAccountConfig(cfg, accountId ?? undefined);
           return {
