@@ -2,6 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { defineSetupPluginEntry } from "openclaw/plugin-sdk/core";
-import { feihanPlugin } from "./channel.js";
+import { base } from "./channel.js";
 
-export default defineSetupPluginEntry(feihanPlugin);
+export default defineSetupPluginEntry(base);

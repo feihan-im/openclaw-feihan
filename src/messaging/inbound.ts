@@ -151,39 +151,7 @@ export function checkMessageGate(
   msg: ParsedInboundMessage,
   account: FeihanAccountConfig,
 ): GateResult {
-  // 1. Self-message filter: ignore messages from the bot itself
-  if (account.botUserId && msg.senderId === account.botUserId) {
-    return { pass: false, reason: "self-message" };
-  }
-
-  // 2. Whitelist filter: if whitelist is non-empty, only allow listed senders
-  if (account.inboundWhitelist.length > 0) {
-    if (!account.inboundWhitelist.includes(msg.senderId)) {
-      return { pass: false, reason: "sender-not-in-whitelist" };
-    }
-  }
-
-  // 3. Group mention filter: in group chats, require @mention if configured
-  if (
-    msg.chatType === "group" &&
-    account.requireMention &&
-    !isBotMentioned(msg, account)
-  ) {
-    return { pass: false, reason: "group-no-mention" };
-  }
-
   return { pass: true };
-}
-
-/**
- * Check if the bot was @mentioned in a message.
- */
-export function isBotMentioned(
-  msg: ParsedInboundMessage,
-  account: FeihanAccountConfig,
-): boolean {
-  if (!account.botUserId) return false;
-  return msg.mentionUserIds.includes(account.botUserId);
 }
 
 // ---------------------------------------------------------------------------
@@ -279,7 +247,7 @@ export function buildContext(
   return {
     Body: msg.body,
     From: isGroup ? `feihan:chat:${msg.chatId}` : `feihan:user:${msg.senderId}`,
-    To: `feihan:bot:${account.botUserId ?? account.appId}`,
+    To: `feihan:bot:${account.appId}`,
     SessionKey: sessionKey,
     AccountId: account.accountId,
     ChatType: isGroup ? "group" : "direct",

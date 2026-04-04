@@ -61,15 +61,12 @@ describe("resolveAccountConfig", () => {
     const account = resolveAccountConfig(cfg);
     expect(account).toEqual({
       accountId: "default",
-      enabled: true,
       appId: "app_1",
       appSecret: "secret_1",
       backendUrl: "https://your-backend-url.com",
+      enabled: true,
       enableEncryption: true,
       requestTimeout: 30_000,
-      requireMention: true,
-      botUserId: undefined,
-      inboundWhitelist: [],
     });
   });
 
@@ -82,7 +79,7 @@ describe("resolveAccountConfig", () => {
               appId: "app_bot1",
               appSecret: "secret_bot1",
               backendUrl: "http://localhost:11000",
-              requireMention: false,
+              enableEncryption: false,
             },
           },
         },
@@ -91,8 +88,7 @@ describe("resolveAccountConfig", () => {
     const account = resolveAccountConfig(cfg, "bot1");
     expect(account.accountId).toBe("bot1");
     expect(account.appId).toBe("app_bot1");
-    expect(account.requireMention).toBe(false);
-    expect(account.enableEncryption).toBe(true); // default
+    expect(account.enableEncryption).toBe(false);
   });
 
   it("falls back to env vars when config values are missing", () => {
@@ -136,14 +132,12 @@ describe("resolveAccountConfig", () => {
 describe("validateAccountConfig", () => {
   const validConfig = {
     accountId: "default",
-    enabled: true,
     appId: "app_1",
     appSecret: "secret_1",
     backendUrl: "https://api.feihan.im",
+    enabled: true,
     enableEncryption: true,
     requestTimeout: 30_000,
-    requireMention: true,
-    inboundWhitelist: [],
   };
 
   it("returns no errors for valid config", () => {

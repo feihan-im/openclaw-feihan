@@ -7,12 +7,14 @@
   "setupEntry": "./dist/setup-entry.js",
   "configSchema": {
     "type": "object",
-    "additionalProperties": false,
     "properties": {}
   },
   "uiHints": {
     "appId": { "label": "App ID" },
     "appSecret": { "label": "App Secret", "sensitive": true },
-    "backendUrl": { "label": "Backend URL", "placeholder": "https://your-backend-url.com" }
+    "backendUrl": { "label": "Backend URL", "placeholder": "https://your-backend-url.com" },
+    "enabled": { "label": "Enabled" },
+    "enableEncryption": { "label": "Enable Encryption" },
+    "requestTimeout": { "label": "Request Timeout (ms)", "placeholder": "30000" }
   }
 }

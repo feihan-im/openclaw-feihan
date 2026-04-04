@@ -5,39 +5,30 @@
 
 export interface FeihanAccountConfig {
   accountId: string;
-  enabled: boolean;
   appId: string;
   appSecret: string;
   backendUrl: string;
+  enabled: boolean;
   enableEncryption: boolean;
   requestTimeout: number;
-  requireMention: boolean;
-  botUserId?: string;
-  inboundWhitelist: string[];
 }
 
 export interface FeihanRawAccountConfig {
   appId?: string;
   appSecret?: string;
   backendUrl?: string;
+  enabled?: boolean;
   enableEncryption?: boolean;
   requestTimeout?: number;
-  requireMention?: boolean;
-  enabled?: boolean;
-  botUserId?: string;
-  inboundWhitelist?: string[];
 }
 
 export interface FeihanChannelConfig {
   appId?: string;
   appSecret?: string;
   backendUrl?: string;
+  enabled?: boolean;
   enableEncryption?: boolean;
   requestTimeout?: number;
-  requireMention?: boolean;
-  enabled?: boolean;
-  botUserId?: string;
-  inboundWhitelist?: string[];
   accounts?: Record<string, FeihanRawAccountConfig>;
 }
 

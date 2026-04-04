@@ -6,8 +6,6 @@ import type { FeihanChannelConfig, FeihanAccountConfig } from "./types.js";
 const DEFAULTS = {
   enableEncryption: true,
   requestTimeout: 30_000,
-  requireMention: true,
-  inboundWhitelist: [] as string[],
 } as const;
 
 const ENV_PREFIX = "FEIHAN_";
@@ -35,10 +33,6 @@ function readEnvConfig(): Partial<FeihanAccountConfig> {
       env[`${ENV_PREFIX}ENABLE_ENCRYPTION`] !== "false";
   if (env[`${ENV_PREFIX}REQUEST_TIMEOUT`])
     result.requestTimeout = Number(env[`${ENV_PREFIX}REQUEST_TIMEOUT`]);
-  if (env[`${ENV_PREFIX}REQUIRE_MENTION`] !== undefined)
-    result.requireMention = env[`${ENV_PREFIX}REQUIRE_MENTION`] !== "false";
-  if (env[`${ENV_PREFIX}BOT_USER_ID`])
-    result.botUserId = env[`${ENV_PREFIX}BOT_USER_ID`];
 
   return result;
 }
@@ -69,18 +63,14 @@ export function resolveAccountConfig(
 
   return {
     accountId: id,
-    enabled: raw?.enabled ?? true,
     appId: raw?.appId ?? envConfig.appId ?? "",
     appSecret: raw?.appSecret ?? envConfig.appSecret ?? "",
     backendUrl: raw?.backendUrl ?? envConfig.backendUrl ?? "",
+    enabled: raw?.enabled ?? true,
     enableEncryption:
       raw?.enableEncryption ?? envConfig.enableEncryption ?? DEFAULTS.enableEncryption,
     requestTimeout:
       raw?.requestTimeout ?? envConfig.requestTimeout ?? DEFAULTS.requestTimeout,
-    requireMention:
-      raw?.requireMention ?? envConfig.requireMention ?? DEFAULTS.requireMention,
-    botUserId: raw?.botUserId ?? envConfig.botUserId,
-    inboundWhitelist: raw?.inboundWhitelist ?? [...DEFAULTS.inboundWhitelist],
   };
 }
 

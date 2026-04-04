@@ -5,7 +5,6 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   parseMessageEvent,
   checkMessageGate,
-  isBotMentioned,
   isDuplicate,
   _resetDedup,
   buildContext,
@@ -26,15 +25,12 @@ function makeAccount(
 ): FeihanAccountConfig {
   return {
     accountId: "test-account",
-    enabled: true,
     appId: "app_test",
     appSecret: "secret",
     backendUrl: "https://your-backend-url.com",
+    enabled: true,
     enableEncryption: true,
     requestTimeout: 30_000,
-    requireMention: true,
-    botUserId: "bot_user_001",
-    inboundWhitelist: [],
     ...overrides,
   };
 }
@@ -197,112 +193,11 @@ describe("parseMessageEvent", () => {
 describe("checkMessageGate", () => {
   it("passes a normal direct message", () => {
     const msg = parseMessageEvent(makeEvent())!;
-    const account = makeAccount({ requireMention: false });
-    const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(true);
-  });
-
-  it("blocks self-messages", () => {
-    const event = makeEvent({
-      sender: { userId: "bot_user_001" },
-    });
-    const msg = parseMessageEvent(event)!;
     const account = makeAccount();
     const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(false);
-    expect(result.reason).toBe("self-message");
-  });
-
-  it("blocks sender not in whitelist when whitelist is set", () => {
-    const msg = parseMessageEvent(makeEvent())!;
-    const account = makeAccount({
-      inboundWhitelist: ["allowed_user"],
-    });
-    const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(false);
-    expect(result.reason).toBe("sender-not-in-whitelist");
-  });
-
-  it("passes sender in whitelist", () => {
-    const msg = parseMessageEvent(makeEvent())!;
-    const account = makeAccount({
-      inboundWhitelist: ["user_sender_001"],
-      requireMention: false,
-    });
-    const result = checkMessageGate(msg, account);
     expect(result.pass).toBe(true);
   });
 
-  it("blocks group message without mention when requireMention is true", () => {
-    const event = makeEvent({ chatType: "group" });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount({ requireMention: true });
-    const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(false);
-    expect(result.reason).toBe("group-no-mention");
-  });
-
-  it("passes group message with mention", () => {
-    const event = makeEvent({
-      chatType: "group",
-      mentionUserList: [{ userId: "bot_user_001" }],
-    });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount({ requireMention: true });
-    const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(true);
-  });
-
-  it("passes group message when requireMention is false", () => {
-    const event = makeEvent({ chatType: "group" });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount({ requireMention: false });
-    const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(true);
-  });
-
-  it("skips self-message check when botUserId is not set", () => {
-    const event = makeEvent({
-      sender: { userId: "any_user" },
-    });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount({ botUserId: undefined });
-    const result = checkMessageGate(msg, account);
-    expect(result.pass).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// isBotMentioned
-// ---------------------------------------------------------------------------
-
-describe("isBotMentioned", () => {
-  it("returns true when bot is in mentionUserIds", () => {
-    const event = makeEvent({
-      mentionUserList: [{ userId: "bot_user_001" }],
-    });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount();
-    expect(isBotMentioned(msg, account)).toBe(true);
-  });
-
-  it("returns false when bot is not mentioned", () => {
-    const event = makeEvent({
-      mentionUserList: [{ userId: "other_user" }],
-    });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount();
-    expect(isBotMentioned(msg, account)).toBe(false);
-  });
-
-  it("returns false when botUserId is not set", () => {
-    const event = makeEvent({
-      mentionUserList: [{ userId: "bot_user_001" }],
-    });
-    const msg = parseMessageEvent(event)!;
-    const account = makeAccount({ botUserId: undefined });
-    expect(isBotMentioned(msg, account)).toBe(false);
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -348,7 +243,7 @@ describe("buildContext", () => {
     expect(ctx.AccountId).toBe("test-account");
     expect(ctx.Body).toBe("hello world");
     expect(ctx.From).toBe("feihan:user:user_sender_001");
-    expect(ctx.To).toBe("feihan:bot:bot_user_001");
+    expect(ctx.To).toBe("feihan:bot:app_test");
     expect(ctx.SessionKey).toBe("feihan:user:user_sender_001");
     expect(ctx.CommandAuthorized).toBe(true);
     expect(ctx._feihan.isGroup).toBe(false);
@@ -367,12 +262,6 @@ describe("buildContext", () => {
     expect(ctx._feihan.chatId).toBe("chat_group_1");
   });
 
-  it("falls back to appId when botUserId is not set", () => {
-    const msg = parseMessageEvent(makeEvent())!;
-    const account = makeAccount({ botUserId: undefined });
-    const ctx = buildContext(msg, account);
-    expect(ctx.To).toBe("feihan:bot:app_test");
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -386,7 +275,7 @@ describe("processInboundMessage", () => {
 
   it("dispatches a valid direct message", async () => {
     const api = makeMockApi();
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent();
     const deliver = vi.fn().mockResolvedValue(undefined);
 
@@ -397,21 +286,9 @@ describe("processInboundMessage", () => {
     expect(api.runtime.channel.session.recordInboundSession).toHaveBeenCalledOnce();
   });
 
-  it("filters self-messages", async () => {
-    const api = makeMockApi();
-    const account = makeAccount();
-    const event = makeEvent({ sender: { userId: "bot_user_001" } });
-    const deliver = vi.fn();
-
-    const result = await processInboundMessage(api, account, event, { deliver });
-
-    expect(result).toBe(false);
-    expect(api.runtime.channel.reply.dispatchReplyWithBufferedBlockDispatcher).not.toHaveBeenCalled();
-  });
-
   it("filters duplicate messages", async () => {
     const api = makeMockApi();
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const msgId = "msg_dedup_test";
     const event = makeEvent({ messageId: msgId });
     const deliver = vi.fn();
@@ -421,31 +298,6 @@ describe("processInboundMessage", () => {
 
     const second = await processInboundMessage(api, account, event, { deliver });
     expect(second).toBe(false);
-  });
-
-  it("filters group messages without mention when required", async () => {
-    const api = makeMockApi();
-    const account = makeAccount({ requireMention: true });
-    const event = makeEvent({ chatType: "group" });
-    const deliver = vi.fn();
-
-    const result = await processInboundMessage(api, account, event, { deliver });
-
-    expect(result).toBe(false);
-  });
-
-  it("dispatches group message with mention", async () => {
-    const api = makeMockApi();
-    const account = makeAccount({ requireMention: true });
-    const event = makeEvent({
-      chatType: "group",
-      mentionUserList: [{ userId: "bot_user_001" }],
-    });
-    const deliver = vi.fn().mockResolvedValue(undefined);
-
-    const result = await processInboundMessage(api, account, event, { deliver });
-
-    expect(result).toBe(true);
   });
 
   it("returns false for unparseable event", async () => {
@@ -463,7 +315,7 @@ describe("processInboundMessage", () => {
     const api = makeMockApi();
     // Remove dispatch function
     (api.runtime.channel.reply as Record<string, unknown>).dispatchReplyWithBufferedBlockDispatcher = undefined;
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent();
     const deliver = vi.fn();
 
@@ -482,7 +334,7 @@ describe("processInboundMessage", () => {
     });
     api.runtime.channel.reply.dispatchReplyWithBufferedBlockDispatcher = mockDispatch;
 
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent({ chatId: "chat_deliver_test" });
     const deliver = vi.fn().mockResolvedValue(undefined);
 
@@ -500,7 +352,7 @@ describe("processInboundMessage", () => {
     });
     api.runtime.channel.reply.dispatchReplyWithBufferedBlockDispatcher = mockDispatch;
 
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent();
     const deliver = vi.fn();
 
@@ -511,7 +363,7 @@ describe("processInboundMessage", () => {
 
   it("records session with updateLastRoute for DM", async () => {
     const api = makeMockApi();
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent({ chatId: "chat_dm_001" });
     const deliver = vi.fn().mockResolvedValue(undefined);
 
@@ -528,7 +380,7 @@ describe("processInboundMessage", () => {
 
   it("does not set updateLastRoute for group messages", async () => {
     const api = makeMockApi();
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent({ chatType: "group" });
     const deliver = vi.fn().mockResolvedValue(undefined);
 
@@ -547,7 +399,7 @@ describe("processInboundMessage", () => {
     });
     api.runtime.channel.reply.dispatchReplyWithBufferedBlockDispatcher = mockDispatch;
 
-    const account = makeAccount({ requireMention: false });
+    const account = makeAccount();
     const event = makeEvent();
     const deliver = vi.fn();
 

@@ -11,7 +11,7 @@ import { sendText } from "./messaging/outbound.js";
 import { parseTarget } from "./targets.js";
 import type { FeihanAccountConfig } from "./types.js";
 
-const base = createChannelPluginBase<FeihanAccountConfig>({
+export const base = createChannelPluginBase<FeihanAccountConfig>({
   id: "feihan",
 
   meta: {

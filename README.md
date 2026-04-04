@@ -93,12 +93,9 @@ openclaw gateway restart
 | `appId` | string | 必填 | 飞函应用 ID |
 | `appSecret` | string | 必填 | 飞函应用密钥 |
 | `backendUrl` | string | 必填 | 飞函后端地址 |
+| `enabled` | boolean | `true` | 启用/禁用该账号 |
 | `enableEncryption` | boolean | `true` | 是否启用加密传输 |
 | `requestTimeout` | number | `30000` | API 请求超时时间（毫秒） |
-| `requireMention` | boolean | `true` | 群聊中是否仅在被 @提及 时响应 |
-| `botUserId` | string | 可选 | 机器人自身的用户 ID（用于过滤自身消息） |
-| `inboundWhitelist` | string[] | `[]` | 非空时，仅接受这些用户 ID 的消息 |
-| `enabled` | boolean | `true` | 启用/禁用该账号 |
 
 ### 环境变量
 
@@ -107,7 +104,6 @@ openclaw gateway restart
 - `FEIHAN_APP_ID`
 - `FEIHAN_APP_SECRET`
 - `FEIHAN_BACKEND_URL`
-- `FEIHAN_REQUIRE_MENTION`
 
 ## 许可证
 
