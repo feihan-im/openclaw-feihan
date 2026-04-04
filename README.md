@@ -38,13 +38,66 @@ openclaw plugins install @feihan-im/openclaw-plugin
 
 ## 配置
 
-交互式配置（推荐）：
+运行以下命令，将三个占位符替换为你的飞函应用凭据：
 
 ```bash
-openclaw channels add --channel feihan
+openclaw channels add --channel feihan \
+  --app-token <APP_ID> \
+  --token <APP_SECRET> \
+  --url <BACKEND_URL>
 ```
 
-或手动编辑 `~/.openclaw/openclaw.json`：
+| 参数 | 填入内容 |
+|------|----------|
+| `--app-token` | 飞函应用 ID |
+| `--token` | 飞函应用密钥 |
+| `--url` | 飞函服务器地址，如 `http://192.168.10.10:21000` |
+
+然后重启网关：
+
+```bash
+openclaw gateway restart
+```
+
+### 账号管理
+
+#### 添加账号
+
+如需接入多个飞函机器人，使用 `--account` 参数指定账号名称：
+
+```bash
+openclaw channels add --channel feihan \
+  --account bot2 \
+  --app-token <APP_ID> \
+  --token <APP_SECRET> \
+  --url <BACKEND_URL>
+```
+
+首个账号自动命名为 `default`。
+
+#### 禁用账号
+
+禁用账号（保留配置，方便后续重新启用）：
+
+```bash
+openclaw channels remove --channel feihan --account bot2
+```
+
+如需重新启用，编辑 `~/.openclaw/openclaw.json`，将该账号的 `"enabled"` 设为 `true`（或删除该字段——账号默认启用）。
+
+#### 删除账号
+
+彻底删除账号及其配置：
+
+```bash
+openclaw channels remove --channel feihan --account bot2 --delete
+```
+
+任何账号变更后，需执行 `openclaw gateway restart` 重启网关使更改生效。
+
+### 高级配置
+
+如需修改其他设置（如加密或请求超时），编辑 `~/.openclaw/openclaw.json`：
 
 ```json
 {
@@ -54,44 +107,15 @@ openclaw channels add --channel feihan
         "default": {
           "appId": "your_app_id",
           "appSecret": "your_app_secret",
-          "backendUrl": "https://your-backend-url.com"
+          "backendUrl": "http://192.168.10.10:21000",
+          "enableEncryption": true,
+          "requestTimeout": 30000
         }
       }
     }
   }
 }
 ```
-
-然后重启网关：
-
-```bash
-openclaw gateway restart
-```
-
-### 多账号配置
-
-```json
-{
-  "channels": {
-    "feihan": {
-      "accounts": {
-        "default": {
-          "appId": "111111",
-          "appSecret": "secret-1",
-          "backendUrl": "https://your-backend-url.com"
-        },
-        "bot2": {
-          "appId": "222222",
-          "appSecret": "secret-2",
-          "backendUrl": "https://your-backend-url.com"
-        }
-      }
-    }
-  }
-}
-```
-
-### 配置项参考
 
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|

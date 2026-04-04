@@ -38,13 +38,66 @@ openclaw plugins install @feihan-im/openclaw-plugin
 
 ## Configuration
 
-Interactive setup (recommended):
+Run the following command, replacing the three placeholders with your Feihan app credentials:
 
 ```bash
-openclaw channels add --channel feihan
+openclaw channels add --channel feihan \
+  --app-token <APP_ID> \
+  --token <APP_SECRET> \
+  --url <BACKEND_URL>
 ```
 
-Or manually edit `~/.openclaw/openclaw.json`:
+| Flag | What to fill in |
+|------|-----------------|
+| `--app-token` | Feihan App ID |
+| `--token` | Feihan App Secret |
+| `--url` | Your Feihan server address, e.g. `http://192.168.10.10:21000` |
+
+Then restart the gateway:
+
+```bash
+openclaw gateway restart
+```
+
+### Managing Accounts
+
+#### Adding an Account
+
+To connect more than one Feihan bot, run the same command with an `--account` flag:
+
+```bash
+openclaw channels add --channel feihan \
+  --account bot2 \
+  --app-token <APP_ID> \
+  --token <APP_SECRET> \
+  --url <BACKEND_URL>
+```
+
+The first account is automatically named `default`.
+
+#### Disabling an Account
+
+Disable an account (keeps config for later re-enable):
+
+```bash
+openclaw channels remove --channel feihan --account bot2
+```
+
+To re-enable it, edit `~/.openclaw/openclaw.json` and set `"enabled": true` on the account entry (or remove the `"enabled"` field — accounts are enabled by default).
+
+#### Removing an Account
+
+Delete an account and its config entirely:
+
+```bash
+openclaw channels remove --channel feihan --account bot2 --delete
+```
+
+After any account change, restart the gateway with `openclaw gateway restart` for the changes to take effect.
+
+### Advanced Configuration
+
+To modify other settings (such as encryption or request timeout), edit `~/.openclaw/openclaw.json`:
 
 ```json
 {
@@ -54,44 +107,15 @@ Or manually edit `~/.openclaw/openclaw.json`:
         "default": {
           "appId": "your_app_id",
           "appSecret": "your_app_secret",
-          "backendUrl": "https://your-backend-url.com"
+          "backendUrl": "http://192.168.10.10:21000",
+          "enableEncryption": true,
+          "requestTimeout": 30000
         }
       }
     }
   }
 }
 ```
-
-Then restart the gateway:
-
-```bash
-openclaw gateway restart
-```
-
-### Multi-Account Setup
-
-```json
-{
-  "channels": {
-    "feihan": {
-      "accounts": {
-        "default": {
-          "appId": "111111",
-          "appSecret": "secret-1",
-          "backendUrl": "https://your-backend-url.com"
-        },
-        "bot2": {
-          "appId": "222222",
-          "appSecret": "secret-2",
-          "backendUrl": "https://your-backend-url.com"
-        }
-      }
-    }
-  }
-}
-```
-
-### Config Reference
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
